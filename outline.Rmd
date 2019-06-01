@@ -7,26 +7,30 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 library(janitor) 
 library(tidyverse)
 library(factoextra)
 library(RColorBrewer)
 library(DT)
 knitr::opts_chunk$set(echo = TRUE)
+
+##AC: you might want to make a note that you need to install DT and factoextra
 ```
 
 # Set-up
 ```{r Import and clean data}
 # Read in the data
-pokemon_data <- clean_names(read.csv("pokemon.csv")) 
+pokemon_data <- clean_names(read.csv("pokemon.csv")) #AAC: Cool, I didn't know you could do the clean_names function while importing! 
+
+#AAC: I would consider providing the reader with a description of the datasource- it looks like pokemon (: - cool data :D
 
 # Create a data frame without missing values that contains the type1 labels
 pokemon_data <- pokemon_data %>% 
     select(-percentage_male, -type2) %>%  
-    filter(type1 %in% c("ghost", "fairy", "dragon")) %>%  # Let's limit this to a few pokemon
+    filter(type1 %in% c("ghost", "fairy", "dragon")) %>%  # Let's limit this to a few pokemon #AAC: Cool use of %n%!
     mutate(type1 = droplevels(type1)) %>% # Few poke have data for these
-    drop_na() 
+    drop_na() #AAC: I didn't know this was a command you could use - great find!
 
 # Create data frame with "against" variables 
 pokemon_against <- pokemon_data %>% 
@@ -47,6 +51,8 @@ pokemon_against <- pokemon_data %>%
 
 # Remove speed since it is a linear combination of other variables
 #pokemon_numeric <- dplyr::select(pokemon_numeric, -speed)
+
+#AAC: I'm a little confused what this means and why it's commented out
 ```
 
 ```{r Data scaling}
@@ -64,6 +70,8 @@ run_clust <- function(df, k) {
            hc_metric = 'euclidean',
            k = k, nstart = 25, graph = TRUE)
 }
+
+#AAC: I thought it was cool how you ran a simulation/set seed WITHIN a function. Awesome use. But I'm not sure what exactly this does (I'm not familiar with eclust)
 ```
 
 ```{r}
@@ -84,11 +92,15 @@ fviz_silhouette(pokemon_against_km, palette = "jco",
 
 # Plot average silhouette width against number of clusters 
 fviz_nbclust(pokemon_against, kmeans, method = "silhouette", k.max = 6) + theme_classic()
+
+#AAC: Very cool plot (even though I am unfamiliar with what clusters are!)
 ```
 
 ```{r Cluster plot}
 pokemon_against_km$clust_plot + 
   theme_minimal()
+
+#AAC: The overlapping numbers of this plot are a bit hard to read
 ```
 
 ```{r Facet by type}
@@ -107,6 +119,8 @@ plot_data %>%
   coord_flip() +
     facet_wrap(~type) +
   theme_minimal()
+
+#AAC: Awesome plot! Conisder making the plot y axes labels more meaningful and cleaned up
 ```
 
 
@@ -115,7 +129,7 @@ plot_data %>%
 k <- pokemon_against_km$nbclust
 
 # cluster number
-clust_num <- map_chr(seq(1:k), ~paste("Cluster", .x))
+clust_num <- map_chr(seq(1:k), ~paste("Cluster", .x)) #AAC: Good use of map
 
 # ss-within
 wss <- round(pokemon_against_km$withinss, 2)
@@ -144,5 +158,7 @@ table_data %>%
             caption = htmltools::tags$caption(
               style = 'caption-side: bottom; text-align: left;',
               htmltools::em('N = number of observations per cluster; SS = sum of squares')))
+
+#AAC: That's an AWESOME table. Great job! 
 ```
 
